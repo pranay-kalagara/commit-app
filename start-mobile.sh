@@ -1,16 +1,26 @@
 #!/bin/bash
 
-# Get the host machine's LAN IP address
-HOST_IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | head -1 | awk '{print $2}')
+echo "🚀 Starting Flutter Mobile Development Environment"
+echo ""
 
-echo "🚀 Starting Expo with HOST_IP: $HOST_IP"
-
-# Export the HOST_IP environment variable and start Docker Compose
-export HOST_IP=$HOST_IP
+# Start the Flutter mobile container
 docker compose up -d mobile
 
-echo "📱 Mobile QR code will show: exp://$HOST_IP:8081"
-echo "🌐 Web interface will be available at: http://localhost:19006"
+# Get the auto-assigned port for Flutter web
+FLUTTER_PORT=$(docker compose port mobile 8080 2>/dev/null | cut -d: -f2)
+
+if [ -n "$FLUTTER_PORT" ]; then
+    echo "✅ Flutter web interface available at: http://localhost:$FLUTTER_PORT"
+else
+    echo "⚠️  Flutter web port not yet assigned. Check 'docker compose ps' for the port."
+fi
+
+echo "📱 For mobile development:"
+echo "   1. Install Flutter SDK locally"
+echo "   2. Run 'flutter run' in the mobile directory"
+echo "   3. Connect your device or start an emulator"
 echo ""
-echo "To start web server, run:"
-echo "docker compose exec mobile npx expo start --web --port 19006"
+echo "🔧 Development commands:"
+echo "   - View logs: docker compose logs -f mobile"
+echo "   - Restart: docker compose restart mobile"
+echo "   - Shell access: docker compose exec mobile bash"

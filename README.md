@@ -33,11 +33,11 @@ A social accountability app that combines elements of BeReal, Strava, and TikTok
 
 - **Backend API**: http://localhost:3000
 - **API Health Check**: http://localhost:3000/health
-- **API Test Endpoint**: http://localhost:3000/api/v1/test
+- **Flutter Mobile Web**: Auto-assigned port (check `docker compose ps`)
 - **Database Admin (pgAdmin)**: http://localhost:8080
   - Email: `admin@commitapp.com`
   - Password: `admin123`
-- **Redis Admin**: http://localhost:8081
+- **Redis Admin**: http://localhost:8082
 
 ### 📱 API Endpoints
 
@@ -67,6 +67,10 @@ make up
 make logs
 make logs-api
 make logs-db
+make logs-mobile
+
+# Mobile development
+make mobile
 
 # Stop services
 make down

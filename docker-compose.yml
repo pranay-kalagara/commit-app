@@ -66,22 +66,17 @@ services:
     build:
       context: ./mobile
       dockerfile: Dockerfile
-      args:
-        - NODE_ENV=development
-    container_name: commit-mobile
+    container_name: commit-mobile-flutter
     environment:
-      - NODE_ENV=development
-      - EXPO_PUBLIC_API_URL=http://backend:3000
-      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - FLUTTER_WEB_PORT=8080
+      - API_BASE_URL=http://backend:3000
     tty: true
     ports:
-      - "8080"  # Web interface (Docker auto-assigns host port)
-      - "8081:8081"  # Metro bundler
-      - "19001-19002:19001-19002"  # Expo DevTools
-      - "19006"  # Expo web DevTools (Docker auto-assigns host port)
+      - "8080"  # Flutter web interface (Docker auto-assigns host port)
+      - "8081"  # Flutter debug port
     volumes:
-      - ./mobile:/opt/react_native_app:delegated
-      - mobile_node_modules:/opt/react_native_app/node_modules
+      - ./mobile:/app:delegated
+      - flutter_pub_cache:/root/.pub-cache
     depends_on:
       backend:
         condition: service_started
@@ -120,7 +115,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  mobile_node_modules:
+  flutter_pub_cache:
 
 networks:
   commit-network:

@@ -13,6 +13,27 @@ services:
       - LOG_LEVEL=debug
     command: npm run dev
 
+  # Flutter mobile development
+  mobile:
+    build:
+      context: ./mobile
+      dockerfile: Dockerfile
+    container_name: commit-mobile-flutter-dev
+    environment:
+      - FLUTTER_WEB_PORT=8080
+      - API_BASE_URL=http://backend:3000
+    tty: true
+    stdin_open: true
+    ports:
+      - "8080"  # Flutter web (auto-assigned)
+      - "8081"  # Flutter debug
+    volumes:
+      - ./mobile:/app:cached
+      - flutter_pub_cache_dev:/root/.pub-cache
+    depends_on:
+      - backend
+    command: flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0
+
   # Development tools
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -32,7 +53,14 @@ services:
     environment:
       REDIS_HOSTS: local:redis:6379
     ports:
-      - "8081:8081"
+      - "8082:8081"  # Changed to avoid conflict with Flutter debug port
     depends_on:
       - redis
 
+volumes:
+  flutter_pub_cache_dev:
+
+networks:
+  default:
+    name: commit-network
+    external: true

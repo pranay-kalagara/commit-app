@@ -12,10 +12,13 @@ help:
 	@echo "  make logs        - View logs from all services"
 	@echo "  make logs-api    - View backend API logs"
 	@echo "  make logs-db     - View database logs"
+	@echo "  make logs-mobile - View Flutter mobile logs"
 	@echo "  make clean       - Remove all containers and volumes"
 	@echo "  make test        - Run backend tests"
 	@echo "  make shell-api   - Open shell in backend container"
 	@echo "  make shell-db    - Open PostgreSQL shell"
+	@echo "  make shell-mobile - Open shell in Flutter container"
+	@echo "  make mobile      - Start Flutter mobile development"
 	@echo ""
 
 # Start development environment
@@ -63,6 +66,17 @@ shell-api:
 
 shell-db:
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml exec postgres psql -U commit_user -d commit_dev
+
+# Flutter mobile commands
+logs-mobile:
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f mobile
+
+shell-mobile:
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml exec mobile bash
+
+mobile:
+	@echo "🚀 Starting Flutter mobile development..."
+	./start-mobile.sh
 
 # Quick health check
 health:
