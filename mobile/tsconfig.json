@@ -1,29 +1,11 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "moduleResolution": "node",
-    "noEmit": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "target": "es5",
-    "forceConsistentCasingInFileNames": true
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "extends": "expo/tsconfig.base"
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  }
 }
