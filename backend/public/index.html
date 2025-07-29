@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commit App - API Testing</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4c51bf;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .section h3 {
+            color: #2d3748;
+            margin-top: 0;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4c51bf;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #434190;
+        }
+        .response {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .success {
+            border-left: 4px solid #48bb78;
+        }
+        .error {
+            border-left: 4px solid #f56565;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .status.online {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .status.offline {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        .endpoint {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .method.get { background: #bee3f8; color: #2a69ac; }
+        .method.post { background: #c6f6d5; color: #22543d; }
+        .method.put { background: #fbb6ce; color: #97266d; }
+        .method.delete { background: #fed7d7; color: #742a2a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Commit App API</h1>
+        <p class="subtitle">Social Accountability Platform - Backend Testing Interface</p>
+        
+        <div class="section">
+            <h3>🔍 System Status <span id="status" class="status offline">Checking...</span></h3>
+            <button onclick="checkHealth()">Check Health</button>
+            <button onclick="testAPI()">Test API</button>
+            <div id="healthResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>👤 User Registration</h3>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="regEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="regUsername" placeholder="username">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="regPassword" placeholder="password123">
+            </div>
+            <div class="form-group">
+                <label>First Name:</label>
+                <input type="text" id="regFirstName" placeholder="John">
+            </div>
+            <div class="form-group">
+                <label>Last Name:</label>
+                <input type="text" id="regLastName" placeholder="Doe">
+            </div>
+            <button onclick="registerUser()">Register User</button>
+            <div id="registerResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>🔐 User Login</h3>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="loginEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="loginPassword" placeholder="password123">
+            </div>
+            <button onclick="loginUser()">Login</button>
+            <div id="loginResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>👤 User Profile</h3>
+            <button onclick="getProfile()">Get My Profile</button>
+            <button onclick="getAllUsers()">Get All Users (Dev)</button>
+            <div class="form-group">
+                <label>Bio:</label>
+                <textarea id="profileBio" placeholder="Tell us about yourself..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Timezone:</label>
+                <input type="text" id="profileTimezone" placeholder="America/New_York">
+            </div>
+            <button onclick="updateProfile()">Update Profile</button>
+            <button onclick="logoutUser()">Logout</button>
+            <div id="profileResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>📋 Available API Endpoints</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/health</code> - System health check
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/v1/test</code> - API test endpoint
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/v1/auth/register</code> - Register new user
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/v1/auth/login</code> - Login user
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/v1/auth/me</code> - Get current user profile (protected)
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/api/v1/users/me</code> - Update user profile (protected)
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/v1/auth/logout</code> - Logout user (protected)
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/v1/dev/users</code> - Get all users (development only)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentToken = null;
+        const API_BASE = '';
+
+        // Check system health
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                document.getElementById('healthResponse').style.display = 'block';
+                document.getElementById('healthResponse').className = 'response success';
+                document.getElementById('healthResponse').textContent = JSON.stringify(data, null, 2);
+                
+                document.getElementById('status').textContent = 'Online';
+                document.getElementById('status').className = 'status online';
+            } catch (error) {
+                document.getElementById('healthResponse').style.display = 'block';
+                document.getElementById('healthResponse').className = 'response error';
+                document.getElementById('healthResponse').textContent = 'Error: ' + error.message;
+                
+                document.getElementById('status').textContent = 'Offline';
+                document.getElementById('status').className = 'status offline';
+            }
+        }
+
+        // Test API endpoint
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/v1/test');
+                const data = await response.json();
+                
+                document.getElementById('healthResponse').style.display = 'block';
+                document.getElementById('healthResponse').className = 'response success';
+                document.getElementById('healthResponse').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('healthResponse').style.display = 'block';
+                document.getElementById('healthResponse').className = 'response error';
+                document.getElementById('healthResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Register user
+        async function registerUser() {
+            const userData = {
+                email: document.getElementById('regEmail').value,
+                username: document.getElementById('regUsername').value,
+                password: document.getElementById('regPassword').value,
+                firstName: document.getElementById('regFirstName').value,
+                lastName: document.getElementById('regLastName').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('registerResponse').style.display = 'block';
+                document.getElementById('registerResponse').className = response.ok ? 'response success' : 'response error';
+                document.getElementById('registerResponse').textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok && data.data && data.data.token) {
+                    currentToken = data.data.token;
+                }
+            } catch (error) {
+                document.getElementById('registerResponse').style.display = 'block';
+                document.getElementById('registerResponse').className = 'response error';
+                document.getElementById('registerResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Login user
+        async function loginUser() {
+            const loginData = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('loginResponse').style.display = 'block';
+                document.getElementById('loginResponse').className = response.ok ? 'response success' : 'response error';
+                document.getElementById('loginResponse').textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok && data.data && data.data.token) {
+                    currentToken = data.data.token;
+                }
+            } catch (error) {
+                document.getElementById('loginResponse').style.display = 'block';
+                document.getElementById('loginResponse').className = 'response error';
+                document.getElementById('loginResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Get user profile
+        async function getProfile() {
+            if (!currentToken) {
+                alert('Please login first to get a token');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = response.ok ? 'response success' : 'response error';
+                document.getElementById('profileResponse').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = 'response error';
+                document.getElementById('profileResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Get all users
+        async function getAllUsers() {
+            try {
+                const response = await fetch('/api/v1/dev/users');
+                const data = await response.json();
+                
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = response.ok ? 'response success' : 'response error';
+                document.getElementById('profileResponse').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = 'response error';
+                document.getElementById('profileResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Update profile
+        async function updateProfile() {
+            if (!currentToken) {
+                alert('Please login first to get a token');
+                return;
+            }
+
+            const profileData = {
+                bio: document.getElementById('profileBio').value,
+                timezone: document.getElementById('profileTimezone').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/users/me', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = response.ok ? 'response success' : 'response error';
+                document.getElementById('profileResponse').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = 'response error';
+                document.getElementById('profileResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Logout user
+        async function logoutUser() {
+            if (!currentToken) {
+                alert('No active session to logout');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = response.ok ? 'response success' : 'response error';
+                document.getElementById('profileResponse').textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    currentToken = null;
+                }
+            } catch (error) {
+                document.getElementById('profileResponse').style.display = 'block';
+                document.getElementById('profileResponse').className = 'response error';
+                document.getElementById('profileResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Check health on page load
+        window.onload = function() {
+            checkHealth();
+        };
+    </script>
+</body>
+</html>
