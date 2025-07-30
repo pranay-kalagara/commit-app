@@ -78,8 +78,9 @@ class AuthProvider extends ChangeNotifier {
         lastName: lastName,
       );
 
-      final user = User.fromJson(response['user']);
-      final token = response['token'];
+      final data = response['data'];
+      final user = User.fromJson(data['user']);
+      final token = data['token'];
 
       await _storeAuthData(user, token);
       _apiService.setAccessToken(token);
@@ -98,6 +99,9 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
+    if (kDebugMode) {
+      print('🔐 Starting login process...');
+    }
     _setState(AuthState.loading);
 
     try {
@@ -106,16 +110,33 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
 
-      final user = User.fromJson(response['user']);
-      final token = response['token'];
+      if (kDebugMode) {
+        print('🔐 Login response received: ${response.toString()}');
+      }
+
+      final data = response['data'];
+      final user = User.fromJson(data['user']);
+      final token = data['token'];
+
+      if (kDebugMode) {
+        print('🔐 Parsed user: ${user.firstName} ${user.lastName}');
+        print('🔐 Token: ${token.substring(0, 20)}...');
+      }
 
       await _storeAuthData(user, token);
       _apiService.setAccessToken(token);
       _user = user;
       _setState(AuthState.authenticated);
       
+      if (kDebugMode) {
+        print('🔐 Login successful! Auth state: $_state, isAuthenticated: $isAuthenticated');
+      }
+      
       return true;
     } catch (e) {
+      if (kDebugMode) {
+        print('🔐 Login error: $e');
+      }
       _setError(e.toString());
       return false;
     }

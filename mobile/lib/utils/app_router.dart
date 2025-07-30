@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,17 +23,36 @@ class AppRouter {
       redirect: (context, state) {
         final isAuthenticated = authProvider.isAuthenticated;
         final isAuthRoute = state.fullPath?.startsWith('/auth') ?? false;
+        final authState = authProvider.state;
+        
+        if (kDebugMode) {
+          print('🗺 Router redirect check:');
+          print('  - Current path: ${state.fullPath}');
+          print('  - Auth state: $authState');
+          print('  - Is authenticated: $isAuthenticated');
+          print('  - Is auth route: $isAuthRoute');
+          print('  - User: ${authProvider.user?.firstName}');
+        }
 
         // If not authenticated and not on auth route, redirect to welcome
         if (!isAuthenticated && !isAuthRoute) {
+          if (kDebugMode) {
+            print('  - Redirecting to /auth/welcome (not authenticated)');
+          }
           return '/auth/welcome';
         }
 
         // If authenticated and on auth route, redirect to home
         if (isAuthenticated && isAuthRoute) {
+          if (kDebugMode) {
+            print('  - Redirecting to / (authenticated on auth route)');
+          }
           return '/';
         }
 
+        if (kDebugMode) {
+          print('  - No redirect needed');
+        }
         return null; // No redirect needed
       },
       routes: [

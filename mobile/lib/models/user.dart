@@ -5,8 +5,8 @@ class User {
   final String firstName;
   final String lastName;
   final String? profileImageUrl;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   User({
     required this.id,
@@ -15,8 +15,8 @@ class User {
     required this.firstName,
     required this.lastName,
     this.profileImageUrl,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -27,8 +27,8 @@ class User {
       firstName: json['firstName'],
       lastName: json['lastName'],
       profileImageUrl: json['profileImageUrl'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 
@@ -40,8 +40,8 @@ class User {
       'firstName': firstName,
       'lastName': lastName,
       'profileImageUrl': profileImageUrl,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 
