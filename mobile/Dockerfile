@@ -1,6 +1,7 @@
 # Flutter Development Docker Image - Multi-architecture support
 # Supports both ARM64 (M1/M2 Mac) and AMD64 (Intel) architectures
-FROM --platform=$BUILDPLATFORM ubuntu:22.04
+# Note: Uses x64 emulation for Flutter since ARM64 Flutter is not available for Linux
+FROM --platform=linux/amd64 ubuntu:22.04
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,14 +41,12 @@ ENV FLUTTER_VERSION=3.16.5
 ENV FLUTTER_HOME=/opt/flutter
 ENV PATH=$PATH:$FLUTTER_HOME/bin
 
-# Download Flutter for the appropriate architecture
-RUN case "$TARGETPLATFORM" in \
-        "linux/amd64") FLUTTER_ARCH="x64" ;; \
-        "linux/arm64") FLUTTER_ARCH="arm64" ;; \
-        *) FLUTTER_ARCH="x64" ;; \
-    esac && \
-    echo "Downloading Flutter for architecture: $FLUTTER_ARCH (platform: $TARGETPLATFORM)" && \
-    wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
+# Download Flutter SDK (x64 only - ARM64 not officially supported for Linux)
+# Note: Flutter will run on ARM64 through emulation
+RUN echo "Downloading Flutter SDK for platform: $TARGETPLATFORM" && \
+    FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" && \
+    echo "Flutter URL: $FLUTTER_URL" && \
+    wget -q "$FLUTTER_URL" && \
     tar xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C /opt && \
     rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
 

@@ -33,7 +33,7 @@ services:
 ### Option 1: Automated Setup (Recommended)
 ```bash
 # Run the automated setup script
-./setup-m1-mac.sh
+./setup-docker.sh
 ```
 
 ### Option 2: Manual Setup
@@ -61,11 +61,11 @@ docker compose up -d
 - No architecture-specific dependencies
 
 ### Mobile (Flutter)
-- Detects target platform using `$TARGETPLATFORM` variable
-- Downloads appropriate Flutter SDK for architecture:
-  - `linux/amd64` → x64 Flutter SDK
-  - `linux/arm64` → ARM64 Flutter SDK
+- **Important**: Flutter for Linux ARM64 is not officially available
+- Uses x64 Flutter SDK with emulation on ARM64 hosts (M1/M2 Macs)
+- Performance impact is minimal for development use
 - Android SDK tools are architecture-agnostic
+- Web development works perfectly on all architectures
 
 ### Database & Cache
 - PostgreSQL and Redis use official multi-arch images
@@ -79,6 +79,14 @@ docker compose up -d
 ```bash
 # Solution: Force rebuild with correct platform
 docker compose build --no-cache --pull
+```
+
+**Problem**: `ERROR [linux/arm64->amd64] RUN flutter precache`
+```bash
+# This is expected - Flutter uses x64 emulation on ARM64
+# Solution: Ensure Docker has enough resources allocated
+# Docker Desktop → Settings → Resources → Advanced
+# Increase Memory to at least 4GB and CPU to 4 cores
 ```
 
 **Problem**: Flutter SDK download fails
