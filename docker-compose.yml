@@ -69,8 +69,10 @@ services:
     build:
       context: ./mobile
       dockerfile: Dockerfile
-      # Note: Mobile container uses x64 emulation on ARM64 hosts
-      # since Flutter ARM64 binaries are not available for Linux
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      # Note: Uses x86_64 Flutter with proper emulation libraries on ARM64
     container_name: commit-mobile-flutter
     environment:
       - FLUTTER_WEB_PORT=8080

@@ -93,20 +93,16 @@ fi
 
 # Step 4: Verify Dockerfile configuration
 echo "🔍 Step 4: Verifying Dockerfile configuration..."
-if grep -q "FROM --platform=linux/amd64" mobile/Dockerfile; then
-    echo "✅ Mobile Dockerfile correctly configured for x64 emulation"
+if grep -q "dpkg --add-architecture amd64" mobile/Dockerfile; then
+    echo "✅ Mobile Dockerfile correctly configured for x86_64 emulation"
 else
     echo "❌ Mobile Dockerfile needs fixing..."
-    echo "   Updating mobile/Dockerfile..."
-    
-    # Backup original
-    cp mobile/Dockerfile mobile/Dockerfile.backup
-    
-    # Fix the FROM line
-    sed -i '' 's/FROM --platform=\$TARGETPLATFORM/FROM --platform=linux\/amd64/' mobile/Dockerfile
-    sed -i '' 's/FROM --platform=\$BUILDPLATFORM/FROM --platform=linux\/amd64/' mobile/Dockerfile
-    
-    echo "✅ Mobile Dockerfile fixed"
+    echo "   This requires manual update - the new Dockerfile includes:"
+    echo "   - Multi-architecture base image"
+    echo "   - x86_64 library installation for ARM64 hosts"
+    echo "   - Enhanced Flutter precache with debugging"
+    echo "   Please pull the latest changes from the repository."
+    exit 1
 fi
 
 # Step 5: Build with verbose output

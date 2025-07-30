@@ -1,7 +1,6 @@
 # Flutter Development Docker Image - Multi-architecture support
 # Supports both ARM64 (M1/M2 Mac) and AMD64 (Intel) architectures
-# Note: Uses x64 emulation for Flutter since ARM64 Flutter is not available for Linux
-FROM --platform=linux/amd64 ubuntu:22.04
+FROM ubuntu:22.04
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -9,6 +8,33 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Set architecture variables for multi-platform builds
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
+
+# Detect host architecture and set up x86_64 emulation if needed
+RUN dpkg --print-architecture > /tmp/host_arch && \
+    if [ "$(cat /tmp/host_arch)" = "arm64" ]; then \
+        echo "Setting up x86_64 emulation on ARM64 host" && \
+        dpkg --add-architecture amd64 && \
+        apt-get update && \
+        apt-get install -y \
+            libc6:amd64 \
+            libstdc++6:amd64 \
+            libgcc-s1:amd64 \
+            libglib2.0-0:amd64 \
+            libgtk-3-0:amd64 \
+            libx11-6:amd64 \
+            libxcomposite1:amd64 \
+            libxcursor1:amd64 \
+            libxdamage1:amd64 \
+            libxext6:amd64 \
+            libxfixes3:amd64 \
+            libxi6:amd64 \
+            libxrandr2:amd64 \
+            libxrender1:amd64 \
+            libxss1:amd64 \
+            libxtst6:amd64; \
+    else \
+        echo "Running on native x86_64 host"; \
+    fi
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -54,8 +80,16 @@ RUN echo "Downloading Flutter SDK for platform: $TARGETPLATFORM" && \
 RUN git config --global --add safe.directory /opt/flutter
 RUN git config --global --add safe.directory /opt/flutter/.pub-cache
 
-# Pre-download Flutter dependencies
-RUN flutter precache
+# Pre-download Flutter dependencies with architecture debugging
+RUN echo "Host architecture: $(dpkg --print-architecture)" && \
+    echo "Flutter binary info:" && \
+    file /opt/flutter/bin/flutter && \
+    echo "Available architectures:" && \
+    dpkg --print-foreign-architectures && \
+    echo "Running Flutter precache..." && \
+    flutter precache --verbose || \
+    (echo "Flutter precache failed, trying without web..." && \
+     flutter precache --no-web --verbose)
 
 # Verify Flutter installation
 RUN flutter --version

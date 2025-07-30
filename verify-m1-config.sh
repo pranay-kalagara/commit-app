@@ -33,19 +33,19 @@ echo ""
 # Check mobile Dockerfile configuration
 echo "🔍 Checking mobile Dockerfile configuration..."
 if [[ -f "mobile/Dockerfile" ]]; then
-    if grep -q "FROM --platform=linux/amd64" mobile/Dockerfile; then
-        echo "✅ Mobile Dockerfile: Correctly configured for x64 emulation"
-    elif grep -q "FROM --platform=\$TARGETPLATFORM" mobile/Dockerfile; then
-        echo "❌ Mobile Dockerfile: Still using TARGETPLATFORM (needs fix)"
-        echo "   Expected: FROM --platform=linux/amd64"
-        echo "   Found: FROM --platform=\$TARGETPLATFORM"
-    elif grep -q "FROM --platform=\$BUILDPLATFORM" mobile/Dockerfile; then
-        echo "❌ Mobile Dockerfile: Still using BUILDPLATFORM (needs fix)"
-        echo "   Expected: FROM --platform=linux/amd64"
-        echo "   Found: FROM --platform=\$BUILDPLATFORM"
+    if grep -q "dpkg --add-architecture amd64" mobile/Dockerfile; then
+        echo "✅ Mobile Dockerfile: Correctly configured for x86_64 emulation on ARM64"
+        if grep -q "libc6:amd64" mobile/Dockerfile; then
+            echo "✅ Mobile Dockerfile: Has required x86_64 libraries"
+        else
+            echo "⚠️  Mobile Dockerfile: Missing some x86_64 libraries"
+        fi
+    elif grep -q "FROM --platform=linux/amd64" mobile/Dockerfile; then
+        echo "⚠️  Mobile Dockerfile: Using old forced x64 approach"
+        echo "   Consider updating to new multi-arch approach with x86_64 libraries"
     else
-        echo "⚠️  Mobile Dockerfile: No platform specification found"
-        echo "   This might cause issues on M1/M2 Macs"
+        echo "❌ Mobile Dockerfile: Not configured for M1/M2 compatibility"
+        echo "   Needs x86_64 emulation setup for ARM64 hosts"
     fi
 else
     echo "❌ mobile/Dockerfile not found"
