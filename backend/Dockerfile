@@ -1,5 +1,6 @@
-# Backend Dockerfile
-FROM node:18.19.0-alpine
+# Backend Dockerfile - Multi-architecture support
+# Supports both ARM64 (M1/M2 Mac) and AMD64 (Intel) architectures
+FROM --platform=$BUILDPLATFORM node:18.19.0-alpine
 
 # Set working directory
 WORKDIR /app

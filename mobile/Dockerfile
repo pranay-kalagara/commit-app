@@ -1,8 +1,13 @@
-# Flutter Development Docker Image
-FROM ubuntu:22.04
+# Flutter Development Docker Image - Multi-architecture support
+# Supports both ARM64 (M1/M2 Mac) and AMD64 (Intel) architectures
+FROM --platform=$BUILDPLATFORM ubuntu:22.04
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Set architecture variables for multi-platform builds
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -20,6 +25,7 @@ RUN apt-get update && apt-get install -y \
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
 
+# Download Android SDK command line tools (architecture-agnostic)
 RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
     wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
     unzip commandlinetools-linux-9477386_latest.zip -d $ANDROID_SDK_ROOT/cmdline-tools && \
@@ -29,12 +35,19 @@ RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
 # Accept Android licenses
 RUN yes | sdkmanager --licenses || true
 
-# Install Flutter
+# Install Flutter - Architecture-aware download
 ENV FLUTTER_VERSION=3.16.5
 ENV FLUTTER_HOME=/opt/flutter
 ENV PATH=$PATH:$FLUTTER_HOME/bin
 
-RUN wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
+# Download Flutter for the appropriate architecture
+RUN case "$TARGETPLATFORM" in \
+        "linux/amd64") FLUTTER_ARCH="x64" ;; \
+        "linux/arm64") FLUTTER_ARCH="arm64" ;; \
+        *) FLUTTER_ARCH="x64" ;; \
+    esac && \
+    echo "Downloading Flutter for architecture: $FLUTTER_ARCH (platform: $TARGETPLATFORM)" && \
+    wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     tar xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C /opt && \
     rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
 
